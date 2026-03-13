@@ -54,4 +54,24 @@ class LeaderboardControllerTests {
         assertEquals(first, res[2])
     }
 
+    @Test
+    fun test_getLeaderboard_withRank() {
+        val p1 = GameResult(1, "p1", 70, 10.0)
+        val p2 = GameResult(2, "p2", 60, 10.0)
+        val p3 = GameResult(3, "p3", 50, 10.0)
+        val p4 = GameResult(4, "p4", 40, 10.0)
+        val p5 = GameResult(5, "p5", 30, 10.0)
+        val p6 = GameResult(6, "p6", 20, 10.0)
+        val p7 = GameResult(7, "p7", 10, 10.0)
+        val p8 = GameResult(8, "p8", 5, 10.0)
+
+        whenever(mockedService.getGameResults()).thenReturn(listOf(p5, p3, p8, p1, p7, p2, p4, p6))
+
+        val res: List<GameResult> = controller.getLeaderboard(4)
+
+        verify(mockedService).getGameResults()
+        assertEquals(7, res.size)
+        assertEquals(listOf(p1, p2, p3, p4, p5, p6, p7), res)
+    }
+
 }
