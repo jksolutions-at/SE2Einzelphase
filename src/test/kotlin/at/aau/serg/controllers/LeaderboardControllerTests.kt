@@ -5,8 +5,11 @@ import at.aau.serg.services.GameResultService
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import org.mockito.Mockito.`when` as whenever // when is a reserved keyword in Kotlin
 
 class LeaderboardControllerTests {
@@ -72,6 +75,34 @@ class LeaderboardControllerTests {
         verify(mockedService).getGameResults()
         assertEquals(7, res.size)
         assertEquals(listOf(p1, p2, p3, p4, p5, p6, p7), res)
+    }
+
+    @Test
+    fun test_getLeaderboard_invalidRank_throwsBadRequest() {
+        val first = GameResult(1, "first", 20, 20.0)
+        val second = GameResult(2, "second", 15, 10.0)
+
+        whenever(mockedService.getGameResults()).thenReturn(listOf(first, second))
+
+        val exception = assertFailsWith<ResponseStatusException> {
+            controller.getLeaderboard(0)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.statusCode)
+    }
+
+    @Test
+    fun test_getLeaderboard_rankTooLarge_throwsBadRequest() {
+        val first = GameResult(1, "first", 20, 20.0)
+        val second = GameResult(2, "second", 15, 10.0)
+
+        whenever(mockedService.getGameResults()).thenReturn(listOf(first, second))
+
+        val exception = assertFailsWith<ResponseStatusException> {
+            controller.getLeaderboard(3)
+        }
+
+        assertEquals(HttpStatus.BAD_REQUEST, exception.statusCode)
     }
 
 }
